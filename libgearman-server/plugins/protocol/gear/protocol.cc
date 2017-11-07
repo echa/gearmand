@@ -378,13 +378,13 @@ static gearmand_error_t _gear_con_add(gearman_server_con_st *connection)
       switch (wolfssl_error= SSL_get_error(connection->_ssl, accept_error))
       {
         case SSL_ERROR_NONE:
-          if (SSL_get_peer_certificate(ssl) != NULL)
+          if (SSL_get_peer_certificate(connection->_ssl) != NULL)
           {
-            if (wolfssl_error = SSL_get_verify_result(ssl) != X509_V_OK)
+            if ((wolfssl_error = SSL_get_verify_result(connection->_ssl)) != X509_V_OK)
             {
               return gearmand_log_error(
                 GEARMAN_DEFAULT_LOG_PARAM,
-                GEARMAND_LOST_CONNECTION,
+                "X509 client certificate verification failed:",
                 "%s",
                 X509_verify_cert_error_string(wolfssl_error)
               );
