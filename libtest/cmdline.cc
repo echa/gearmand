@@ -61,9 +61,9 @@ using namespace libtest;
 #include <algorithm>
 #include <stdexcept>
 
-#ifndef __USE_GNU
-static char **environ= NULL;
-#endif
+//#ifndef __USE_GNU
+//static char **environ= NULL;
+//#endif
 
 #ifndef FD_CLOEXEC
 # define FD_CLOEXEC 0
