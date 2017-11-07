@@ -1,5 +1,5 @@
 /*  vim:expandtab:shiftwidth=2:tabstop=2:smarttab:
- * 
+ *
  *  Gearmand client and server library.
  *
  *  Copyright (C) 2011-2013 Data Differential, http://datadifferential.com/
@@ -178,6 +178,8 @@ struct gearmand_st
     SSL_library_init();
 
     _ctx_ssl= SSL_CTX_new(SSLv23_server_method());
+    SSL_CTX_set_options(_ctx_ssl, SSL_OP_NO_SSLv2|SSL_OP_NO_SSLv3);
+    SSL_CTX_set_verify(_ctx_ssl, SSL_VERIFY_PEER, NULL);
 #endif
   }
 

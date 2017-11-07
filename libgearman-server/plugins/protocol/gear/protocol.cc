@@ -1,5 +1,5 @@
 /*  vim:expandtab:shiftwidth=2:tabstop=2:smarttab:
- * 
+ *
  *  Gearmand client and server library.
  *
  *  Copyright (C) 2012-2013 Data Differential, http://datadifferential.com/
@@ -378,6 +378,18 @@ static gearmand_error_t _gear_con_add(gearman_server_con_st *connection)
       switch (wolfssl_error= SSL_get_error(connection->_ssl, accept_error))
       {
         case SSL_ERROR_NONE:
+          if (SSL_get_peer_certificate(ssl) != NULL)
+          {
+            if (wolfssl_error = SSL_get_verify_result(ssl) != X509_V_OK)
+            {
+              return gearmand_log_error(
+                GEARMAN_DEFAULT_LOG_PARAM,
+                GEARMAND_LOST_CONNECTION,
+                "%s",
+                X509_verify_cert_error_string(wolfssl_error)
+              );
+            }
+          }
           break;
 
         case SSL_ERROR_WANT_READ:
@@ -395,7 +407,7 @@ static gearmand_error_t _gear_con_add(gearman_server_con_st *connection)
         default:
           char wolfssl_error_buffer[SSL_ERROR_SIZE]= { 0 };
           ERR_error_string_n(wolfssl_error, wolfssl_error_buffer, sizeof(wolfssl_error_buffer));
-          return gearmand_log_gerror(GEARMAN_DEFAULT_LOG_PARAM, GEARMAND_LOST_CONNECTION, "%s(%d)", 
+          return gearmand_log_gerror(GEARMAN_DEFAULT_LOG_PARAM, GEARMAND_LOST_CONNECTION, "%s(%d)",
                                      wolfssl_error_buffer, wolfssl_error);
       }
     }
@@ -501,13 +513,13 @@ gearmand_error_t Gear::start(gearmand_st *gearmand)
     gearmand_log_info(GEARMAN_DEFAULT_LOG_PARAM, "Loading CA certificate : %s", _ssl_ca_file.c_str());
 
     if (SSL_CTX_use_certificate_file(gearmand->ctx_ssl(), _ssl_certificate.c_str(), SSL_FILETYPE_PEM) != SSL_SUCCESS)
-    {   
+    {
       gearmand_log_fatal(GEARMAN_DEFAULT_LOG_PARAM, "SSL_CTX_use_certificate_file() cannot obtain certificate %s", _ssl_certificate.c_str());
     }
     gearmand_log_info(GEARMAN_DEFAULT_LOG_PARAM, "Loading certificate : %s", _ssl_certificate.c_str());
 
     if (SSL_CTX_use_PrivateKey_file(gearmand->ctx_ssl(), _ssl_key.c_str(), SSL_FILETYPE_PEM) != SSL_SUCCESS)
-    {   
+    {
       gearmand_log_fatal(GEARMAN_DEFAULT_LOG_PARAM, "SSL_CTX_use_PrivateKey_file() cannot obtain certificate %s", _ssl_key.c_str());
     }
     gearmand_log_info(GEARMAN_DEFAULT_LOG_PARAM, "Loading certificate key : %s", _ssl_key.c_str());
