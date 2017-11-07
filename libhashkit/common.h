@@ -45,6 +45,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+// Alpine Linux defines __WORDSIZE in bits/reg.h
+#include <bits/reg.h>
+
 #ifndef __WORDSIZE
 # ifdef __MINGW32__
 #  define __WORDSIZE 32
